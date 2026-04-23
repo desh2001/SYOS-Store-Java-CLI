@@ -1,0 +1,13 @@
+# IDE Settings and Folders
+.vscode/
+.idea/
+*.iml
+
+# Compiled Output Folders
+bin/
+out/
+*.class
+
+# Log files
+*.log
+
