@@ -1,16 +1,34 @@
 package com.syos.view;
 
-import com.syos.dao.BillDAO;
-import com.syos.dao.ItemDAO;
+import com.syos.factory.DAOFactory;
+import com.syos.gateway.ItemGateway;
+import com.syos.gateway.BillGateway;
+import com.syos.model.Bill;
+import com.syos.model.BillItem;
 import com.syos.model.Item;
+import com.syos.model.ItemStock;
 import java.util.Scanner;
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Online Store CLI view.
+ * 
+ * Design Patterns used:
+ * - Factory Pattern: receives DAOFactory for DAO creation
+ * - Gateway Pattern: uses ItemGateway/BillGateway interfaces
+ * - DTO Pattern: uses ItemStock, Bill, BillItem models instead of raw arrays
+ */
 public class OnlineStoreCLI {
-    private Scanner scanner = new Scanner(System.in);
-    private ItemDAO itemDAO = new ItemDAO();
-    private BillDAO billDAO = new BillDAO();
+    private Scanner scanner;
+    private ItemGateway itemDAO;
+    private BillGateway billDAO;
+
+    // Factory Pattern — receives factory for DAO creation
+    public OnlineStoreCLI(Scanner scanner, DAOFactory factory) {
+        this.scanner = scanner;
+        this.itemDAO = factory.createItemDAO();
+        this.billDAO = factory.createBillDAO();
+    }
 
     public void start() {
         System.out.println("\n╔══════════════════════════════════════════╗");
@@ -45,10 +63,10 @@ public class OnlineStoreCLI {
         }
     }
 
-    // ===== සියලුම Items Shelf Stock එක්ක පෙන්වීම =====
+    // ===== DTO Pattern — Uses ItemStock instead of String[] =====
     private void viewItems() {
         try {
-            List<String[]> items = itemDAO.getItemsWithShelfStock();
+            List<ItemStock> items = itemDAO.getItemsWithShelfStock();
 
             if (items.isEmpty()) {
                 System.out.println("\nNo items available in the store.");
@@ -62,13 +80,11 @@ public class OnlineStoreCLI {
             System.out.println("╠══════╬══════════╬══════════════════════════════╬═════════════╣");
 
             boolean hasItems = false;
-            for (String[] item : items) {
-                int stockQty = Integer.parseInt(item[4]);
-                if (stockQty > 0) {
+            for (ItemStock item : items) {
+                if (item.isAvailable()) {
                     hasItems = true;
-                    
-                    System.out.printf("║ %-4s ║ %-8s ║ %-28s ║ LKR %7s ║%n",
-                        item[0], item[1], item[2], item[3]);
+                    System.out.printf("║ %-4d ║ %-8s ║ %-28s ║ LKR %7.2f ║%n",
+                        item.getItemId(), item.getItemCode(), item.getItemName(), item.getUnitPrice());
                 }
             }
 
@@ -84,12 +100,11 @@ public class OnlineStoreCLI {
         }
     }
 
-    // ===== Online Order Process කිරීම (Multi-Item Cart Support) =====
+    // ===== DTO Pattern — Uses Bill and BillItem instead of int[] and String[] =====
     private void processOnlineOrder() {
         try {
-            List<int[]> cart = new ArrayList<>();
-            List<String[]> cartDisplay = new ArrayList<>(); // For receipt display
-            double totalAmount = 0;
+            // DTO Pattern — Using Bill object
+            Bill bill = new Bill("ONLINE");
 
             System.out.println("\n--- SYOS ONLINE ORDER ---");
             System.out.println("(Type 'done' when you have finished adding items)\n");
@@ -100,7 +115,7 @@ public class OnlineStoreCLI {
                 String code = scanner.nextLine().trim();
 
                 if (code.equalsIgnoreCase("done")) {
-                    if (cart.isEmpty()) {
+                    if (!bill.hasItems()) {
                         System.out.println("Your cart is empty. Order cancelled.");
                         return;
                     }
@@ -130,53 +145,52 @@ public class OnlineStoreCLI {
                     continue;
                 }
 
-                double lineTotal = item.getPrice() * qty;
-                totalAmount += lineTotal;
+                // DTO Pattern — Using BillItem instead of int[]
+                BillItem billItem = new BillItem(item.getId(), item.getCode(), item.getName(), qty, item.getPrice());
+                bill.addItem(billItem);
 
-                cart.add(new int[]{item.getId(), qty, (int) lineTotal});
-                cartDisplay.add(new String[]{item.getName(), String.valueOf(qty), 
-                    String.format("%.2f", item.getPrice()), String.format("%.2f", lineTotal)});
-
-                System.out.println("Added to cart: " + item.getName() + " x" + qty + " = LKR " + String.format("%.2f", lineTotal));
-                System.out.println("Cart Total: LKR " + String.format("%.2f", totalAmount));
+                System.out.println("Added to cart: " + item.getName() + " x" + qty + " = LKR " + String.format("%.2f", billItem.getTotal()));
+                System.out.println("Cart Total: LKR " + String.format("%.2f", bill.getTotalAmount()));
                 System.out.println();
             }
 
-            // ===== Order Summary පෙන්වීම =====
+            // ===== Order Summary =====
             System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
             System.out.println("║                     SYOS ONLINE ORDER SUMMARY                      ║");
             System.out.println("╠══════════════════════════════╦══════╦══════════════╦═══════════════╣");
             System.out.println("║          Item Name           ║ Qty  ║  Unit Price  ║  Line Total   ║");
             System.out.println("╠══════════════════════════════╬══════╬══════════════╬═══════════════╣");
 
-            for (String[] row : cartDisplay) {
-                System.out.printf("║ %-28s ║ %-4s ║ LKR %8s ║ LKR %9s ║%n",
-                    row[0], row[1], row[2], row[3]);
+            for (BillItem item : bill.getItems()) {
+                System.out.printf("║ %-28s ║ %-4d ║ LKR %8.2f ║ LKR %9.2f ║%n",
+                    item.getName(), item.getQuantity(), item.getUnitPrice(), item.getTotal());
             }
 
             System.out.println("╠══════════════════════════════╩══════╩══════════════╬═══════════════╣");
-            System.out.printf("║ %50s ║ LKR %9s ║%n", "GRAND TOTAL", String.format("%.2f", totalAmount));
+            System.out.printf("║ %50s ║ LKR %9.2f ║%n", "GRAND TOTAL", bill.getTotalAmount());
             System.out.println("╚════════════════════════════════════════════════════╩═══════════════╝");
 
             System.out.println("\nDelivery Type: HOME DELIVERY");
             System.out.println("Payment Method: CASH ON DELIVERY");
 
-            // ===== Order Confirm කිරීම =====
+            // ===== Order Confirm =====
             System.out.print("\nConfirm Order? (yes/no): ");
             String confirm = scanner.nextLine().trim();
 
             if (confirm.equalsIgnoreCase("yes") || confirm.equalsIgnoreCase("y")) {
                 // Bill Type එක 'ONLINE' ලෙස save කිරීම
-                billDAO.processBill("ONLINE", totalAmount, totalAmount, 0, cart);
+                bill.processPayment(bill.getTotalAmount()); // COD — cash = total
+                int billId = billDAO.processBill(bill);
 
                 System.out.println("\n╔═══════════════════════════════════════════════════════╗");
                 System.out.println("║          ORDER PLACED SUCCESSFULLY!                   ║");
                 System.out.println("╠═══════════════════════════════════════════════════════╣");
+                System.out.println("║  Order #" + String.format("%-45d", billId) + "║");
                 System.out.println("║  Your items will be delivered to your                 ║");
                 System.out.println("║  registered address.                                  ║");
                 System.out.println("║                                                       ║");
                 System.out.println("║  Payment: Cash on Delivery (COD)                      ║");
-                System.out.printf("║  Total Amount: LKR %-35s║%n", String.format("%.2f", totalAmount));
+                System.out.printf("║  Total Amount: LKR %-35s║%n", String.format("%.2f", bill.getTotalAmount()));
                 System.out.println("║                                                       ║");
                 System.out.println("║  Thank you for shopping with SYOS!                    ║");
                 System.out.println("╚═══════════════════════════════════════════════════════╝");

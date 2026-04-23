@@ -4,8 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Singleton Pattern (Thread-Safe) — Provides a single shared database connection.
+ * Uses synchronized getInstance() to prevent race conditions in multi-threaded scenarios.
+ */
 public class DatabaseConnection {
-    private static DatabaseConnection instance;
+    private static volatile DatabaseConnection instance;
     private Connection connection;
     
     // Database විස්තර
@@ -23,8 +27,8 @@ public class DatabaseConnection {
         }
     }
 
-    // එකම instance එක ලබාගැනීම
-    public static DatabaseConnection getInstance() throws SQLException {
+    // Thread-safe එකම instance එක ලබාගැනීම (Double-Checked Locking)
+    public static synchronized DatabaseConnection getInstance() throws SQLException {
         if (instance == null) {
             instance = new DatabaseConnection();
         } else if (instance.getConnection().isClosed()) {
