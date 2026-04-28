@@ -3,9 +3,6 @@ package com.syos.command;
 import com.syos.gateway.ItemGateway;
 import java.util.Scanner;
 
-/**
- * Command Pattern — Encapsulates the "Update Item Details" action.
- */
 public class UpdateItemCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -30,3 +27,5 @@ public class UpdateItemCommand implements Command {
         }
     }
 }
+
+

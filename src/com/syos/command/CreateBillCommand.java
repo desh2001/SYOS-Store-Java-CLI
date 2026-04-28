@@ -9,12 +9,6 @@ import com.syos.model.Item;
 import com.syos.decorator.*;
 import java.util.Scanner;
 
-/**
- * Command Pattern + Decorator Pattern + DTO Pattern
- * Encapsulates the entire POS billing process.
- * Uses Bill and BillItem DTOs instead of raw arrays.
- * Uses Decorator pattern for optional discount/tax application.
- */
 public class CreateBillCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -31,7 +25,7 @@ public class CreateBillCommand implements Command {
     @Override
     public void execute() {
         try {
-            // DTO Pattern — Using Bill object instead of loose variables
+
             Bill bill = new Bill("OFFLINE");
 
             System.out.println("\n --- ADD ITEMS TO BILL ---");
@@ -54,7 +48,7 @@ public class CreateBillCommand implements Command {
                     } else if (availableInShelf < bQty) {
                         System.out.println("   [!] Only " + availableInShelf + " items available on shelf!");
                     } else {
-                        // DTO Pattern — Using BillItem instead of int[]
+
                         BillItem billItem = new BillItem(item.getId(), item.getCode(), item.getName(), bQty, item.getPrice());
                         bill.addItem(billItem);
                         System.out.println("   [OK] Added: " + item.getName() + " | Total: LKR " + billItem.getTotal() + "\n");
@@ -65,10 +59,9 @@ public class CreateBillCommand implements Command {
             }
 
             if (bill.hasItems()) {
-                // Decorator Pattern — Build pricing chain
+
                 BillComponent pricing = new BasicBill(bill);
 
-                // Ask if discount should be applied
                 System.out.print("\n [?] Apply Discount? (yes/no): ");
                 String discountChoice = scanner.nextLine().trim();
                 if (discountChoice.equalsIgnoreCase("yes") || discountChoice.equalsIgnoreCase("y")) {
@@ -77,7 +70,6 @@ public class CreateBillCommand implements Command {
                     pricing = new DiscountDecorator(pricing, discountPct);
                 }
 
-                // Ask if tax should be applied
                 System.out.print(" [?] Apply Tax? (yes/no): ");
                 String taxChoice = scanner.nextLine().trim();
                 if (taxChoice.equalsIgnoreCase("yes") || taxChoice.equalsIgnoreCase("y")) {
@@ -86,7 +78,6 @@ public class CreateBillCommand implements Command {
                     pricing = new TaxDecorator(pricing, taxPct);
                 }
 
-                // Calculate final total using Decorator chain
                 double finalTotal = pricing.calculateTotal();
                 bill.setTotalAmount(finalTotal);
 
@@ -94,34 +85,43 @@ public class CreateBillCommand implements Command {
                 System.out.println(" Pricing: " + pricing.getDescription());
                 System.out.println(" [TOTAL] GRAND TOTAL: LKR " + String.format("%.2f", finalTotal));
                 System.out.println(" ------------------------------------------");
-                System.out.print(" [CASH] Cash Amount Received: LKR ");
-                double cashReceived = Double.parseDouble(scanner.nextLine());
 
-                bill.processPayment(cashReceived);
+                double cashReceived = 0;
+                while (true) {
+                    System.out.print(" [CASH] Cash Amount Received: LKR ");
+                    try {
+                        cashReceived = Double.parseDouble(scanner.nextLine());
+                        bill.processPayment(cashReceived);
 
-                if (bill.isPaymentSufficient()) {
-                    int billId = billDAO.processBill(bill);
-
-                    // Beautiful Receipt Preview
-                    System.out.println("\n ══════════════════════════════════════════");
-                    System.out.println("              SYOS OUTLET RECEIPT          ");
-                    System.out.println(" ══════════════════════════════════════════");
-                    System.out.println("  Bill #" + billId);
-                    System.out.println("  Pricing : " + pricing.getDescription());
-                    System.out.printf("  Total Bill Amount : LKR %10.2f\n", finalTotal);
-                    System.out.printf("  Cash Tendered     : LKR %10.2f\n", cashReceived);
-                    System.out.println(" ──────────────────────────────────────────");
-                    System.out.printf("  BALANCE TO PAY    : LKR %10.2f\n", bill.getChangeAmount());
-                    System.out.println(" ══════════════════════════════════════════");
-                    System.out.println("          Thank You! Come Again.           ");
-                    System.out.println(" ══════════════════════════════════════════\n");
-
-                } else {
-                    System.out.println("\n [!] Insufficient Cash! Transaction Cancelled.");
+                        if (bill.isPaymentSufficient()) {
+                            break;
+                        } else {
+                            System.out.println("\n [!] Insufficient Cash!");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(" [!] Please enter a valid amount.");
+                    }
                 }
+
+                int billId = billDAO.processBill(bill);
+
+                System.out.println("\n ══════════════════════════════════════════");
+                System.out.println("              SYOS OUTLET RECEIPT          ");
+                System.out.println(" ══════════════════════════════════════════");
+                System.out.println("  Bill #" + billId);
+                System.out.println("  Pricing : " + pricing.getDescription());
+                System.out.printf("  Total Bill Amount : LKR %10.2f\n", finalTotal);
+                System.out.printf("  Cash Tendered     : LKR %10.2f\n", cashReceived);
+                System.out.println(" ──────────────────────────────────────────");
+                System.out.printf("  BALANCE TO PAY    : LKR %10.2f\n", bill.getChangeAmount());
+                System.out.println(" ══════════════════════════════════════════");
+                System.out.println("          Thank You! Come Again.           ");
+                System.out.println(" ══════════════════════════════════════════\n");
             }
         } catch (Exception e) {
             System.out.println("\n [!] Error: " + e.getMessage());
         }
     }
 }
+
+

@@ -1,9 +1,5 @@
 package com.syos.strategy;
 
-/**
- * Strategy Pattern — FIFO (First In, First Out) stock depletion.
- * Picks batches in the order they were added (by stock_id).
- */
 public class FIFOStrategy implements StockDepletionStrategy {
 
     @Override
@@ -16,3 +12,5 @@ public class FIFOStrategy implements StockDepletionStrategy {
         return "FIFO (First In, First Out)";
     }
 }
+
+

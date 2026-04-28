@@ -15,9 +15,10 @@ public class Stock {
         this.expiryDate = expiryDate;
     }
 
-    // Getters
     public int getItemId() { return itemId; }
     public String getBatchNo() { return batchNo; }
     public int getQuantity() { return quantity; }
     public Date getExpiryDate() { return expiryDate; }
 }
+
+

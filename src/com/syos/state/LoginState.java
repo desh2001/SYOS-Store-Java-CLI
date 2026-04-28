@@ -3,11 +3,6 @@ package com.syos.state;
 import com.syos.factory.DAOFactory;
 import java.util.Scanner;
 
-/**
- * State Pattern — Login state.
- * Displays the login prompt and validates credentials.
- * Transitions to MainMenuState on success, stays in LoginState on failure.
- */
 public class LoginState implements AppState {
 
     @Override
@@ -18,19 +13,24 @@ public class LoginState implements AppState {
         System.out.println("╚══════════════════════════════════════════╝");
 
         while (true) {
-            System.out.print(" [>] Enter Username: ");
+            System.out.println("\n [!] Enter 'back' to return to role selection.");
+            System.out.print(" [>] Enter Admin Username: ");
             String username = scanner.nextLine().trim();
 
-            System.out.print(" [>] Enter Password: ");
+            if (username.equalsIgnoreCase("back")) return new RoleSelectionState();
+
+            System.out.print(" [>] Enter Admin Password: ");
             String password = scanner.nextLine().trim();
 
             if (username.equals("admin") && password.equals("admin123")) {
-                System.out.println("\n [OK] Login successful! Welcome, " + username + ".");
-                // State transition → MainMenuState
+                System.out.println("\n [OK] Admin login successful! Welcome.");
+
                 return new MainMenuState();
             } else {
-                System.out.println(" [!] Invalid username or password. Please try again.\n");
+                System.out.println(" [!] Invalid admin credentials. Please try again.\n");
             }
         }
     }
 }
+
+

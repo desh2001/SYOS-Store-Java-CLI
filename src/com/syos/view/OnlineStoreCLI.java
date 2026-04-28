@@ -10,20 +10,11 @@ import com.syos.model.ItemStock;
 import java.util.Scanner;
 import java.util.List;
 
-/**
- * Online Store CLI view.
- * 
- * Design Patterns used:
- * - Factory Pattern: receives DAOFactory for DAO creation
- * - Gateway Pattern: uses ItemGateway/BillGateway interfaces
- * - DTO Pattern: uses ItemStock, Bill, BillItem models instead of raw arrays
- */
 public class OnlineStoreCLI {
     private Scanner scanner;
     private ItemGateway itemDAO;
     private BillGateway billDAO;
 
-    // Factory Pattern — receives factory for DAO creation
     public OnlineStoreCLI(Scanner scanner, DAOFactory factory) {
         this.scanner = scanner;
         this.itemDAO = factory.createItemDAO();
@@ -39,7 +30,7 @@ public class OnlineStoreCLI {
             System.out.println("\n========= SYOS ONLINE STORE =========");
             System.out.println("1. View Available Items");
             System.out.println("2. Place an Order");
-            System.out.println("3. Back to Main Menu");
+            System.out.println("3. Exit Store");
             System.out.print("Select an option: ");
 
             int choice = -1;
@@ -55,7 +46,7 @@ public class OnlineStoreCLI {
             } else if (choice == 2) {
                 processOnlineOrder();
             } else if (choice == 3) {
-                System.out.println("Returning to Main Menu...");
+                System.out.println("Exiting store...");
                 break;
             } else {
                 System.out.println("Invalid choice. Try again.");
@@ -63,7 +54,6 @@ public class OnlineStoreCLI {
         }
     }
 
-    // ===== DTO Pattern — Uses ItemStock instead of String[] =====
     private void viewItems() {
         try {
             List<ItemStock> items = itemDAO.getItemsWithShelfStock();
@@ -100,16 +90,14 @@ public class OnlineStoreCLI {
         }
     }
 
-    // ===== DTO Pattern — Uses Bill and BillItem instead of int[] and String[] =====
     private void processOnlineOrder() {
         try {
-            // DTO Pattern — Using Bill object
+
             Bill bill = new Bill("ONLINE");
 
             System.out.println("\n--- SYOS ONLINE ORDER ---");
             System.out.println("(Type 'done' when you have finished adding items)\n");
 
-            // ===== Multi-item cart loop =====
             while (true) {
                 System.out.print("Enter Item Code (or 'done' to finish): ");
                 String code = scanner.nextLine().trim();
@@ -122,7 +110,6 @@ public class OnlineStoreCLI {
                     break;
                 }
 
-                // Item එක database එකෙන් සොයාගැනීම
                 Item item = itemDAO.getItemByCode(code);
 
                 if (item == null) {
@@ -145,7 +132,6 @@ public class OnlineStoreCLI {
                     continue;
                 }
 
-                // DTO Pattern — Using BillItem instead of int[]
                 BillItem billItem = new BillItem(item.getId(), item.getCode(), item.getName(), qty, item.getPrice());
                 bill.addItem(billItem);
 
@@ -154,7 +140,6 @@ public class OnlineStoreCLI {
                 System.out.println();
             }
 
-            // ===== Order Summary =====
             System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
             System.out.println("║                     SYOS ONLINE ORDER SUMMARY                      ║");
             System.out.println("╠══════════════════════════════╦══════╦══════════════╦═══════════════╣");
@@ -173,13 +158,12 @@ public class OnlineStoreCLI {
             System.out.println("\nDelivery Type: HOME DELIVERY");
             System.out.println("Payment Method: CASH ON DELIVERY");
 
-            // ===== Order Confirm =====
             System.out.print("\nConfirm Order? (yes/no): ");
             String confirm = scanner.nextLine().trim();
 
             if (confirm.equalsIgnoreCase("yes") || confirm.equalsIgnoreCase("y")) {
-                // Bill Type එක 'ONLINE' ලෙස save කිරීම
-                bill.processPayment(bill.getTotalAmount()); // COD — cash = total
+
+                bill.processPayment(bill.getTotalAmount());
                 int billId = billDAO.processBill(bill);
 
                 System.out.println("\n╔═══════════════════════════════════════════════════════╗");
@@ -203,3 +187,5 @@ public class OnlineStoreCLI {
         }
     }
 }
+
+

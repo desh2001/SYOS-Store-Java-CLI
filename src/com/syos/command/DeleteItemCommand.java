@@ -3,9 +3,6 @@ package com.syos.command;
 import com.syos.gateway.ItemGateway;
 import java.util.Scanner;
 
-/**
- * Command Pattern — Encapsulates the "Delete Item" action.
- */
 public class DeleteItemCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -31,3 +28,5 @@ public class DeleteItemCommand implements Command {
         }
     }
 }
+
+

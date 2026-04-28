@@ -6,10 +6,6 @@ import com.syos.model.Item;
 import com.syos.strategy.FEFOStrategy;
 import java.util.Scanner;
 
-/**
- * Command Pattern + Strategy Pattern — Encapsulates the "Stock Transfer (Warehouse to Shelf)" action.
- * Uses the FEFO strategy by default for stock depletion ordering.
- */
 public class ReshelveStockCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -27,14 +23,12 @@ public class ReshelveStockCommand implements Command {
             System.out.print(" [>] Enter Item Code to Reshelve: ");
             String resCode = scanner.nextLine().trim();
 
-            // Code එකෙන් Item එක හොයාගන්නවා
             Item resItem = itemDAO.getItemByCode(resCode);
 
             if (resItem != null) {
                 System.out.print(" [>] Enter Quantity to move to Shelf: ");
                 int reshelveQty = Integer.parseInt(scanner.nextLine());
 
-                // Strategy Pattern — using FEFO strategy (default)
                 boolean success = stockDAO.reshelveItem(resItem.getId(), reshelveQty, new FEFOStrategy());
                 if (success) {
                     System.out.println(" [OK] Successfully reshelved " + reshelveQty + " units using FEFO strategy.");
@@ -49,3 +43,5 @@ public class ReshelveStockCommand implements Command {
         }
     }
 }
+
+

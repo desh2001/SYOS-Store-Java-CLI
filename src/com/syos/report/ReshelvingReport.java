@@ -3,10 +3,6 @@ package com.syos.report;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Template Method Pattern — Concrete report: Reshelving Report.
- * Shows items with shelf stock below 20 that need refilling.
- */
 public class ReshelvingReport extends ReportTemplate {
 
     @Override
@@ -32,3 +28,5 @@ public class ReshelvingReport extends ReportTemplate {
             rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
     }
 }
+
+

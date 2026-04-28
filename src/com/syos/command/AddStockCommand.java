@@ -6,9 +6,6 @@ import com.syos.model.Item;
 import com.syos.model.Stock;
 import java.util.Scanner;
 
-/**
- * Command Pattern — Encapsulates the "Add Stock to Warehouse" action.
- */
 public class AddStockCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -26,7 +23,6 @@ public class AddStockCommand implements Command {
             System.out.print(" [+] Item Code: ");
             String addCode = scanner.nextLine().trim();
 
-            // Code එකෙන් Item එක හොයාගන්නවා
             Item addItem = itemDAO.getItemByCode(addCode);
 
             if (addItem != null) {
@@ -35,7 +31,6 @@ public class AddStockCommand implements Command {
                 System.out.print(" [+] Expiry Date (yyyy-MM-dd): ");
                 java.util.Date expiry = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(scanner.nextLine());
 
-                // හොයාගත්ත Item එකේ ID එක මෙතනින් pass කරනවා
                 stockDAO.addStock(new Stock(addItem.getId(), batchNo, qty, expiry));
                 System.out.println(" [OK] Stock added successfully!");
             } else {
@@ -46,3 +41,5 @@ public class AddStockCommand implements Command {
         }
     }
 }
+
+

@@ -3,10 +3,6 @@ package com.syos.observer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Observer Pattern — Subject that manages observers and notifies them
- * when stock levels change. DAOs use this to broadcast stock events.
- */
 public class StockSubject {
     private List<StockObserver> observers = new ArrayList<>();
 
@@ -28,3 +24,5 @@ public class StockSubject {
         return observers;
     }
 }
+
+

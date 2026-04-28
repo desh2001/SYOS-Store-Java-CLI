@@ -11,36 +11,31 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO Pattern + Gateway Pattern — Concrete implementation of ItemGateway.
- * Encapsulates all JDBC operations for the items table.
- */
 public class ItemDAO implements ItemGateway {
 
     @Override
     public void saveItem(Item item) throws SQLException {
-        // Database එකට Item එකක් ඇතුළත් කරන Query එක
+
         String query = "INSERT INTO items (item_code, item_name, unit_price) VALUES (?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             statement.setString(1, item.getCode());
             statement.setString(2, item.getName());
             statement.setDouble(3, item.getPrice());
-            
+
             statement.executeUpdate();
         }
     }
 
-    // Item Code එකෙන් Item එක සොයාගැනීම (POS Billing සඳහා)
     @Override
     public Item getItemByCode(String code) throws SQLException {
         String query = "SELECT * FROM items WHERE item_code = ?";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             statement.setString(1, code);
             ResultSet rs = statement.executeQuery();
 
@@ -56,7 +51,6 @@ public class ItemDAO implements ItemGateway {
         return null;
     }
 
-    // සියලුම Items ලබාගැනීම
     @Override
     public List<Item> getAllItems() throws SQLException {
         List<Item> items = new ArrayList<>();
@@ -64,7 +58,7 @@ public class ItemDAO implements ItemGateway {
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 items.add(new Item(
@@ -78,7 +72,6 @@ public class ItemDAO implements ItemGateway {
         return items;
     }
 
-    // Shelf Stock එක්ක Items ලබාගැනීම — now returns List<ItemStock> (DTO Pattern)
     @Override
     public List<ItemStock> getItemsWithShelfStock() throws SQLException {
         List<ItemStock> results = new ArrayList<>();
@@ -87,7 +80,7 @@ public class ItemDAO implements ItemGateway {
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 results.add(new ItemStock(
@@ -102,18 +95,17 @@ public class ItemDAO implements ItemGateway {
         return results;
     }
 
-    // Item Code එකෙන් Item එකක් Update කිරීම
     @Override
     public void updateItemByCode(String code, String name, double price) throws SQLException {
         String query = "UPDATE items SET item_name = ?, unit_price = ? WHERE item_code = ?";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             statement.setString(1, name);
             statement.setDouble(2, price);
             statement.setString(3, code);
-            
+
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 System.out.println(" [OK] Item updated successfully!");
@@ -123,16 +115,15 @@ public class ItemDAO implements ItemGateway {
         }
     }
 
-    // Item Code එකෙන් Item එකක් Delete කිරීම
     @Override
     public void deleteItemByCode(String code) throws SQLException {
         String query = "DELETE FROM items WHERE item_code = ?";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            
-            statement.setString(1, code); // 1 වෙනි පරාමිතියට Code එක දෙනවා
-            
+
+            statement.setString(1, code);
+
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 System.out.println(" [OK] Item deleted successfully!");
@@ -141,5 +132,7 @@ public class ItemDAO implements ItemGateway {
             }
         }
     }
-    
+
 }
+
+

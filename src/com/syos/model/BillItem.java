@@ -1,9 +1,5 @@
 package com.syos.model;
 
-/**
- * DTO representing a single line item on a bill/order.
- * Used in both POS billing and Online Store ordering.
- */
 public class BillItem {
     private int itemId;
     private String itemCode;
@@ -21,7 +17,6 @@ public class BillItem {
         this.total = quantity * unitPrice;
     }
 
-    // Getters
     public int getItemId() { return itemId; }
     public String getItemCode() { return itemCode; }
     public String getName() { return name; }
@@ -29,3 +24,5 @@ public class BillItem {
     public double getUnitPrice() { return unitPrice; }
     public double getTotal() { return total; }
 }
+
+

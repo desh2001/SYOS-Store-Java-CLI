@@ -3,11 +3,6 @@ package com.syos.report;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Template Method Pattern — Concrete report: Warehouse Stock Report.
- * Shows batch-wise stock details with expiry dates.
- * Overrides printHeader() and printFooter() for a 5-column layout.
- */
 public class StockReport extends ReportTemplate {
 
     @Override
@@ -37,7 +32,6 @@ public class StockReport extends ReportTemplate {
             rs.getString("expiry_date"));
     }
 
-    // Override header for 5-column layout
     @Override
     protected void printHeader() {
         String[] headers = getHeaders();
@@ -47,9 +41,10 @@ public class StockReport extends ReportTemplate {
         System.out.println("├────────────┼────────────────────────────────┼──────────────┼────────┼──────────────┤");
     }
 
-    // Override footer for 5-column layout
     @Override
     protected void printFooter() {
         System.out.println("└────────────┴────────────────────────────────┴──────────────┴────────┴──────────────┘");
     }
 }
+
+

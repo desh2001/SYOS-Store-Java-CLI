@@ -3,10 +3,6 @@ package com.syos.report;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Template Method Pattern — Concrete report: Daily Sales Report.
- * Shows items sold today with quantities and revenue.
- */
 public class DailySalesReport extends ReportTemplate {
 
     @Override
@@ -33,3 +29,5 @@ public class DailySalesReport extends ReportTemplate {
             rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
     }
 }
+
+

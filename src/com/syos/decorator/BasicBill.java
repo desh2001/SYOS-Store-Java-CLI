@@ -2,10 +2,6 @@ package com.syos.decorator;
 
 import com.syos.model.Bill;
 
-/**
- * Decorator Pattern — Concrete component wrapping a Bill model.
- * Returns the raw subtotal from all bill items.
- */
 public class BasicBill implements BillComponent {
     private Bill bill;
 
@@ -27,3 +23,5 @@ public class BasicBill implements BillComponent {
         return bill;
     }
 }
+
+

@@ -4,9 +4,6 @@ import com.syos.gateway.ItemGateway;
 import com.syos.model.Item;
 import java.util.Scanner;
 
-/**
- * Command Pattern — Encapsulates the "Add New Item" action.
- */
 public class AddItemCommand implements Command {
     private Scanner scanner;
     private ItemGateway itemDAO;
@@ -29,3 +26,5 @@ public class AddItemCommand implements Command {
         }
     }
 }
+
+

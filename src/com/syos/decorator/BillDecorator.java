@@ -1,9 +1,5 @@
 package com.syos.decorator;
 
-/**
- * Decorator Pattern — Abstract decorator that wraps a BillComponent.
- * Subclasses override calculateTotal() and getDescription() to add behavior.
- */
 public abstract class BillDecorator implements BillComponent {
     protected BillComponent wrappedBill;
 
@@ -21,3 +17,5 @@ public abstract class BillDecorator implements BillComponent {
         return wrappedBill.getDescription();
     }
 }
+
+

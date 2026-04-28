@@ -3,11 +3,6 @@ package com.syos.report;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Template Method Pattern — Concrete report: All Transactions Report.
- * Shows all bills with date, type, total, and cash paid.
- * Overrides printHeader() and printFooter() for a 5-column layout.
- */
 public class BillReport extends ReportTemplate {
 
     @Override
@@ -35,7 +30,6 @@ public class BillReport extends ReportTemplate {
             rs.getDouble("cash_paid"));
     }
 
-    // Override header for 5-column transaction layout
     @Override
     protected void printHeader() {
         String[] headers = getHeaders();
@@ -45,9 +39,10 @@ public class BillReport extends ReportTemplate {
         System.out.println("├──────────┼───────────────────────┼────────────┼────────────────┼────────────────┤");
     }
 
-    // Override footer for 5-column transaction layout
     @Override
     protected void printFooter() {
         System.out.println("└──────────┴───────────────────────┴────────────┴────────────────┴────────────────┘");
     }
 }
+
+
